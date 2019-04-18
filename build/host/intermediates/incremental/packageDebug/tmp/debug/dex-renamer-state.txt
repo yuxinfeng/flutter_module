@@ -1,0 +1,4 @@
+#Mon Apr 15 16:06:22 CST 2019
+base.0=/Users/yuxinfeng/HybirdFlutter/flutter_module/build/host/intermediates/transforms/dexMerger/debug/0
+path.0=classes.dex
+renamed.0=classes.dex
