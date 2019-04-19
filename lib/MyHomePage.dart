@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:flutter/services.dart';
+import 'commincation/ChannelConst.dart';
+import 'commincation/MethodChannelManager.dart';
+import 'commincation/BasicChannelManager.dart';
+import 'commincation/EventChannelManager.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -37,12 +41,9 @@ class _MyHomePageState extends State<MyHomePage> {
     initMethodHandle();
   }
 
-  static const androidAndflutter = const BasicMessageChannel(
-      'com.ycbjie.androidAndFlutter/plugin', StandardMessageCodec());
-  static const methodChannel = const MethodChannel(
-      'com.ycbjie.method/plugin', StandardMethodCodec());
-  static const eventChannel = const EventChannel(
-      'com.ycbjie.event/plugin', StandardMethodCodec());
+  static BasicMessageChannel androidAndflutter = BasicChannelManager.instance.create(ChannelConst.BASICCHANNEL, StandardMessageCodec());
+  static MethodChannel methodChannel = MethodChannelManager.instance.create(ChannelConst.METHODCHANNEL, StandardMethodCodec());
+  static EventChannel eventChannel = EventChannelManager.instance.create(ChannelConst.EVENTCHANNEL, StandardMethodCodec());
 
   Future<String> sendMessage() async {
     String replay = await androidAndflutter.send(
@@ -94,6 +95,23 @@ class _MyHomePageState extends State<MyHomePage> {
     print(error.toString());
   }
 
+  void _showTextToast(BuildContext context, String textcontext) {
+    final scaffold = Scaffold.of(context);
+    scaffold.showSnackBar(
+      SnackBar(
+        content: Text(textcontext, textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 20,
+            )),
+        action: SnackBarAction(
+            label: 'native 返回的结果', onPressed: scaffold.hideCurrentSnackBar),
+      ),
+    );
+  }
+
+  String _getnativemessage;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,11 +126,21 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text('$_getnativemessage', style: TextStyle(
+              color: Colors.red,
+              fontSize: 20,
+            )),
             ActionChip(label: Text('调用native basic channel'), onPressed: () {
               sendMessage();
             }),
-            ActionChip(label: Text('调用native method channel'), onPressed: () {
-              invokeNative("method1");
+            ActionChip(label: Text('调用native method channel'), onPressed: () async {
+              Map a = new Map<String, String>();
+              a['name'] = "yxf";
+              a['age'] = '18';
+              _getnativemessage = await invokeNative("method1", a);
+              setState(() {
+                print(_getnativemessage);
+              });
             }),
             ActionChip(label: Text('调用native method2 channel'), onPressed: () {
               invokeNative("method2", true);
