@@ -5,8 +5,10 @@ import 'CommonWidget.dart';
 import 'package:flutter/services.dart';
 import 'dart:developer';
 import 'package:transparent_image/transparent_image.dart';
-
+import 'LoadNativeResPlugin.dart';
 class LoadGridViewWidget extends StatefulWidget {
+  
+  
   @override
   State<StatefulWidget> createState() {
     return _GridViewVBuilder();
@@ -14,6 +16,7 @@ class LoadGridViewWidget extends StatefulWidget {
 }
 
 class _GridViewVBuilder extends State<LoadGridViewWidget> {
+  static LoadNativPlugin _getNativePlugin = LoadNativPlugin();
 
   @override
   void initState() {
@@ -87,6 +90,17 @@ class _GridViewVBuilder extends State<LoadGridViewWidget> {
         content: new Image.memory(list, width: 150, height: 150),
         action: SnackBarAction(
             label: '内存中', onPressed: scaffold.hideCurrentSnackBar),
+      ),
+    );
+  }
+
+  void _showPicByByte1Toast(BuildContext context, Uint8List data) async {
+    final scaffold = Scaffold.of(context);
+    scaffold.showSnackBar(
+      SnackBar(
+        content: new Image.memory(data, width: 150, height: 150),
+        action: SnackBarAction(
+            label: 'Native', onPressed: scaffold.hideCurrentSnackBar),
       ),
     );
   }
@@ -190,6 +204,17 @@ class _GridViewVBuilder extends State<LoadGridViewWidget> {
               )), onPressed: () async {
             String text = await getString(context);
             _showJsonToast(context, text);
+          }),
+          new ActionChip(label: Text(
+              "调用Native图片",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 20,
+              )), onPressed: () {
+            _getNativePlugin.getNativeImage("ic_launcher", (data) {
+              _showPicByByte1Toast(context, data);
+            });
           })
         ]
     );
